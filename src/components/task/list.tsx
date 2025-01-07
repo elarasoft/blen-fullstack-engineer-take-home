@@ -1,5 +1,6 @@
 'use server';
 
+import { fetchAllTasks } from '@/actions/taskActions';
 import {
   Table,
   TableBody,
@@ -10,48 +11,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Task } from '@/constants/types';
-import { faker } from '@/lib/faker';
 import Link from 'next/link';
 
-const testData: Task[] = [
-  {
-    id: 1,
-    title: faker.generateWords(3),
-    description: faker.generateParagraphs(3),
-    due_date: '2025-01-15',
-    isCompleted: false,
-  },
-  {
-    id: 2,
-    title: faker.generateWords(3),
-    description: faker.generateParagraphs(3),
-    due_date: '2025-01-15',
-    isCompleted: false,
-  },
-  {
-    id: 3,
-    title: faker.generateWords(3),
-    description: faker.generateParagraphs(3),
-    due_date: '2025-01-15',
-    isCompleted: false,
-  },
-  {
-    id: 4,
-    title: faker.generateWords(3),
-    description: faker.generateParagraphs(3),
-    due_date: '2025-01-15',
-    isCompleted: false,
-  },
-  {
-    id: 5,
-    title: faker.generateWords(3),
-    description: faker.generateParagraphs(3),
-    due_date: '2025-01-15',
-    isCompleted: false,
-  },
-];
-
 export async function TaskList() {
+  const { tasks } = await fetchAllTasks();
+
   return (
     <div className="flex flex-col items-center justify-center">
       <Table>
@@ -64,13 +28,13 @@ export async function TaskList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {testData.map((item: Task) => (
+          {tasks.map((item: Task, index: number) => (
             <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.id}</TableCell>
+              <TableCell className="font-medium">{index + 1}</TableCell>
               <TableCell>
                 <Link href={`/${item.id}`}>{item.title}</Link>
               </TableCell>
-              <TableCell>{item.due_date}</TableCell>
+              <TableCell>{item.dueDate}</TableCell>
             </TableRow>
           ))}
         </TableBody>
