@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { createTask } from '@/actions/taskActions';
 import { useToast } from '@/components/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -22,19 +23,22 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const FormSchema = z.object({
   title: z.string().min(1, {
     message: 'Title must be not empty.',
   }),
   description: z.string(),
-  due_date: z.date({
+  dueDate: z.date({
     required_error: 'Due date is required.',
   }),
 });
 
 export function AddTask() {
   const { toast } = useToast();
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -43,15 +47,20 @@ export function AddTask() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const result = await createTask({
+      title: data.title,
+      description: data.description,
+      dueDate: format(data.dueDate, 'yyyy-MM-dd'),
+      isCompleted: false,
     });
+
+    if (result.success) {
+      toast({
+        title: 'Add new task successfully!',
+      });
+      router.back();
+    }
   }
 
   return (
@@ -95,7 +104,7 @@ export function AddTask() {
           />
           <FormField
             control={form.control}
-            name="due_date"
+            name="dueDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Due Date</FormLabel>
@@ -118,7 +127,6 @@ export function AddTask() {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                       initialFocus
                     />
                   </PopoverContent>
