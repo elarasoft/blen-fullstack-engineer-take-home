@@ -6,6 +6,7 @@ import { CalendarIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { fetchTaskById, updateTask } from '@/actions/taskActions';
 import { useToast } from '@/components/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -20,39 +21,72 @@ import {
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { Task } from '@/constants/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const FormSchema = z.object({
   title: z.string().min(1, {
     message: 'Title must be not empty.',
   }),
   description: z.string(),
-  due_date: z.date({
+  dueDate: z.date({
     required_error: 'Due date is required.',
   }),
 });
 
-export function EditTask({ id }: { id: string }) {
+export function EditTask({ id }: { id: number }) {
   const { toast } = useToast();
   const router = useRouter();
+
+  const getTask = (id: number) => {
+    return new Promise(async (resolve, reject) => {
+      const { task: fetchTask } = await fetchTaskById(id);
+      if (fetchTask === undefined) {
+        reject(false);
+      } else {
+        resolve(fetchTask);
+      }
+    });
+  };
+
+  const [task, setTask] = useState<Task>();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: '',
       description: '',
+      dueDate: new Date(),
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  useEffect(() => {
+    getTask(id).then((res) => {
+      const data = res as Task;
+      setTask(data);
+      form.setValue('title', data.title);
+      form.setValue('description', data.description);
+      form.setValue('dueDate', new Date(data.dueDate));
     });
+  }, []);
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const result = await updateTask({
+      id: id,
+      title: data.title,
+      description: data.description,
+      dueDate: format(data.dueDate, 'yyyy-MM-dd'),
+      isCompleted: false,
+    });
+
+    if (result.success) {
+      toast({
+        title: 'Update Task successfully!',
+      });
+      router.push(`/${id}`);
+    }
   }
 
   return (
@@ -96,7 +130,7 @@ export function EditTask({ id }: { id: string }) {
           />
           <FormField
             control={form.control}
-            name="due_date"
+            name="dueDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Due Date</FormLabel>
@@ -119,7 +153,6 @@ export function EditTask({ id }: { id: string }) {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                       initialFocus
                     />
                   </PopoverContent>
@@ -129,7 +162,7 @@ export function EditTask({ id }: { id: string }) {
             )}
           />
           <div className="flex space-x-3">
-            <Button className="w-full">
+            <Button className="w-full" type="button">
               <div className="w-full" onClick={() => router.back()}>
                 Back
               </div>

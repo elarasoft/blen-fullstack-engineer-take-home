@@ -1,9 +1,13 @@
 'use client';
 
+import { deleteTask } from '@/actions/taskActions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export function TaskAction({ id, type }: { id?: string; type: string }) {
+export function TaskAction({ id, type }: { id?: number; type: string }) {
+  const router = useRouter();
+
   if (type === 'add')
     return (
       <div className="flex w-full">
@@ -21,7 +25,15 @@ export function TaskAction({ id, type }: { id?: string; type: string }) {
             Edit
           </Link>
         </Button>
-        <Button className="w-full">Delete</Button>
+        <Button
+          className="w-full"
+          variant="destructive"
+          onClick={() => {
+            deleteTask(id || 0);
+            router.push('/');
+          }}>
+          Delete
+        </Button>
       </div>
     );
 }
