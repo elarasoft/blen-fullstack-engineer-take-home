@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `order` integer DEFAULT 0;

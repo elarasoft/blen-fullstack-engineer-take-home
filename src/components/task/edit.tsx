@@ -31,6 +31,7 @@ const FormSchema = z.object({
     message: 'Title must be not empty.',
   }),
   description: z.string(),
+  order: z.string(),
   dueDate: z.date({
     required_error: 'Due date is required.',
   }),
@@ -59,6 +60,7 @@ export function EditTask({ id }: { id: number }) {
       title: '',
       description: '',
       dueDate: new Date(),
+      order: '0',
     },
   });
 
@@ -69,6 +71,7 @@ export function EditTask({ id }: { id: number }) {
       form.setValue('title', data.title);
       form.setValue('description', data.description);
       form.setValue('dueDate', new Date(data.dueDate));
+      form.setValue('order', `${data?.order}`);
     });
   }, []);
 
@@ -79,6 +82,7 @@ export function EditTask({ id }: { id: number }) {
       description: data.description,
       dueDate: format(data.dueDate, 'yyyy-MM-dd'),
       isCompleted: false,
+      order: Number(data.order),
     });
 
     if (result.success) {
@@ -157,6 +161,26 @@ export function EditTask({ id }: { id: number }) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="order"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Priority</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    className={cn(
+                      'pl-3 text-left font-normal',
+                      !field.value && 'text-muted-foreground'
+                    )}
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

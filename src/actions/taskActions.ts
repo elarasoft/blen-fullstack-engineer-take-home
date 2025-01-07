@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from '@/db/client'; // Import your database client
-import { tasks as TaskSchema } from '@/db/schema'; // Import your tasks schema
-import { eq } from 'drizzle-orm';
+import { tasks as TaskSchema } from '@/db/schema/task'; // Import your tasks schema
+import { desc, eq } from 'drizzle-orm';
 
 type Task = {
   id?: number;
@@ -10,6 +10,7 @@ type Task = {
   description: string;
   dueDate: string;
   isCompleted: boolean;
+  order?: number;
 };
 
 // Define the server action for creating a task
@@ -52,7 +53,7 @@ export async function updateTask(data: Task) {
 export async function fetchAllTasks() {
   try {
     // Fetch all tasks from the database
-    const tasks = await db.select().from(TaskSchema);
+    const tasks = await db.select().from(TaskSchema).orderBy(desc(TaskSchema.order));
     return { tasks };
   } catch (error) {
     return { tasks: [] };

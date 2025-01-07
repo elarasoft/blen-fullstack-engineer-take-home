@@ -30,6 +30,7 @@ const FormSchema = z.object({
     message: 'Title must be not empty.',
   }),
   description: z.string(),
+  order: z.number(),
   dueDate: z.date({
     required_error: 'Due date is required.',
   }),
@@ -44,6 +45,7 @@ export function AddTask() {
     defaultValues: {
       title: '',
       description: '',
+      order: 0,
     },
   });
 
@@ -131,6 +133,26 @@ export function AddTask() {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="order"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Priority</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    className={cn(
+                      'pl-3 text-left font-normal',
+                      !field.value && 'text-muted-foreground'
+                    )}
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

@@ -6,4 +6,5 @@ export interface Task {
   isCompleted: boolean;
   createdAt?: string;
   updatedAt?: string;
+  order?: number;
 }
