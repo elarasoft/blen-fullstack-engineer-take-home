@@ -136,8 +136,10 @@ export function AddTask() {
             )}
           />
           <div className="flex space-x-3">
-            <Button className="w-full">
-              <Link href="/">Back</Link>
+            <Button className="w-full" type="button">
+              <Link className="w-full" href="/">
+                Back
+              </Link>
             </Button>
             <Button type="submit" className="w-full">
               Add

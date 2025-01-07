@@ -11,7 +11,13 @@ export function TaskAction({ id, type }: { id?: number; type: string }) {
   if (type === 'add')
     return (
       <div className="flex w-full">
-        <Button className="mr-3">Refresh Tasks</Button>
+        <Button
+          className="mr-3"
+          onClick={() => {
+            window.location.href = '/';
+          }}>
+          Refresh
+        </Button>
         <Button className="ml-auto">
           <Link href="/add">Add</Link>
         </Button>

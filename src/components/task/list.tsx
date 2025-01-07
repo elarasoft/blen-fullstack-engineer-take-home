@@ -19,7 +19,7 @@ export async function TaskList() {
   return (
     <div className="flex flex-col items-center justify-center">
       <Table>
-        <TableCaption>A list of your tasks.</TableCaption>
+        <TableCaption>{tasks.length === 0 ? 'No task' : 'A list of your tasks.'}</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">ID</TableHead>
